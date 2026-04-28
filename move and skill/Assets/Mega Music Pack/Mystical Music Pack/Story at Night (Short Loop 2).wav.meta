@@ -1,0 +1,30 @@
+fileFormatVersion: 2
+guid: 752987ba3a2552a4a8f7d41a3f6b087b
+AudioImporter:
+  externalObjects: {}
+  serializedVersion: 6
+  defaultSettings:
+    loadType: 0
+    sampleRateSetting: 0
+    sampleRateOverride: 44100
+    compressionFormat: 1
+    quality: 1
+    conversionMode: 0
+  platformSettingOverrides: {}
+  forceToMono: 0
+  normalize: 1
+  preloadAudioData: 1
+  loadInBackground: 0
+  ambisonic: 0
+  3D: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 54687
+  packageName: Mega Game Music Collection
+  packageVersion: 1.27
+  assetPath: Assets/Mega Music Pack/Mystical Music Pack/Story at Night (Short Loop
+    2).wav
+  uploadId: 677028
