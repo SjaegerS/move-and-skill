@@ -1,0 +1,4 @@
+The Road Pack, located in the Bonus Collection, features 4 unique scenes that differ from
+the others because you directly control the vehicles within the scenes. 
+
+Therefore, this pack requires adapted prefabs and scripts to function correctly.

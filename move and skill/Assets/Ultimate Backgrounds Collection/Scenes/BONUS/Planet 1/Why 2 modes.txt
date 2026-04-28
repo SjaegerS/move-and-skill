@@ -1,0 +1,8 @@
+This package features two types of scenes : Grounded Mode and Fly Mode. 
+
+Grounded Mode scenes are ideal if you want to develop a simple platform game. 
+
+But if you prefer to create a game where you control a spaceship, for example, you can 
+choose Fly Mode scenes, where Fly Mode and Endless Move are enabled by default.  
+
+You can, of course, enable and disable these features at any time via the Player inspector. 

@@ -1,0 +1,8 @@
+This package features two types of scenes : Grounded Mode and Swim Mode. 
+
+Grounded Mode scenes are ideal if you want to develop a simple platform game. 
+
+But if you prefer to create a game where you control a fish or a submarine, for example, you can 
+choose Swim Mode scenes, where Fly Mode (same function as Swim Mode) and Endless Move are enabled by default.  
+
+You can, of course, enable and disable these features at any time via the Player inspector. 
