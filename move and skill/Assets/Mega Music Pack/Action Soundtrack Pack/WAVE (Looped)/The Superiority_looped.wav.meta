@@ -1,0 +1,29 @@
+fileFormatVersion: 2
+guid: 572e99e46c1695a4fa39ce588141cc96
+AudioImporter:
+  externalObjects: {}
+  serializedVersion: 6
+  defaultSettings:
+    loadType: 0
+    sampleRateSetting: 0
+    sampleRateOverride: 44100
+    compressionFormat: 1
+    quality: 1
+    conversionMode: 0
+  platformSettingOverrides: {}
+  forceToMono: 0
+  normalize: 1
+  preloadAudioData: 1
+  loadInBackground: 0
+  ambisonic: 0
+  3D: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 54687
+  packageName: Mega Game Music Collection
+  packageVersion: 1.27
+  assetPath: Assets/Mega Music Pack/Action Soundtrack Pack/WAVE (Looped)/The Superiority_looped.wav
+  uploadId: 677028
