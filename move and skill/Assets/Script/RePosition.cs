@@ -1,4 +1,3 @@
-using UltimateBackgroundsCollection;
 using UnityEngine;
 
 public class RePosition : MonoBehaviour
