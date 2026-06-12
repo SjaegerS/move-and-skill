@@ -20,11 +20,24 @@ public class Player : MonoBehaviour
     public float attackCooldown = 0.5f;
     private float currentAttackCooldown = 0f;
 
+    // 추가됨: 힘 스탯을 찍을 때마다 올라갈 보너스 공격력
+    public int bonusDamage = 0;
+
     public GameObject basicAttackPrefab;
     public float attackOffset = 1.2f;
     public float effectAngleOffset = -90f;
-
     public Weapon equippedWeapon;
+
+    [Header("스킬 시스템 (잠금 및 쿨타임)")]
+    public bool isSkill1Unlocked = false;
+    public bool isSkill2Unlocked = false;
+    public float skill1Cooldown = 8f;
+    private float currentSkill1Cooldown = 0f;
+    public float skill2Cooldown = 15f;
+    private float currentSkill2Cooldown = 0f;
+
+    [Header("피격 설정")]
+    private float hitDelay = 0f;
 
     [Header("회피 잔상 (Trail)")]
     public float ghostDelay = 0.03f;
@@ -49,149 +62,156 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        if (!GameManager.instance.isLive) return;
+
+        if (hitDelay > 0) hitDelay -= Time.deltaTime;
+
         if (currentCooldown > 0)
         {
             currentCooldown -= Time.deltaTime;
+            if (currentCooldown <= 0) currentCooldown = 0;
             UIManager.instance.UpdateCooldown(1, currentCooldown, dodgeCooldown);
         }
 
         if (currentAttackCooldown > 0)
         {
             currentAttackCooldown -= Time.deltaTime;
+            if (currentAttackCooldown <= 0) currentAttackCooldown = 0;
             UIManager.instance.UpdateCooldown(0, currentAttackCooldown, attackCooldown);
         }
 
-        mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        if (crosshair != null)
+        if (currentSkill1Cooldown > 0)
         {
-            crosshair.position = new Vector3(mousePos.x, mousePos.y, 0f);
+            currentSkill1Cooldown -= Time.deltaTime;
+            if (currentSkill1Cooldown <= 0) currentSkill1Cooldown = 0;
+            UIManager.instance.UpdateCooldown(2, currentSkill1Cooldown, skill1Cooldown);
         }
+
+        if (currentSkill2Cooldown > 0)
+        {
+            currentSkill2Cooldown -= Time.deltaTime;
+            if (currentSkill2Cooldown <= 0) currentSkill2Cooldown = 0;
+            UIManager.instance.UpdateCooldown(3, currentSkill2Cooldown, skill2Cooldown);
+        }
+
+        mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        if (crosshair != null) crosshair.position = new Vector3(mousePos.x, mousePos.y, 0f);
 
         if (isDodging)
         {
-            if (ghostTimer <= 0)
-            {
-                CreateGhost();
-                ghostTimer = ghostDelay;
-            }
-            else
-            {
-                ghostTimer -= Time.deltaTime;
-            }
+            if (ghostTimer <= 0) { CreateGhost(); ghostTimer = ghostDelay; }
+            else ghostTimer -= Time.deltaTime;
 
             dodgeTimer -= Time.deltaTime;
-            if (dodgeTimer <= 0)
-            {
-                isDodging = false;
-                isInvincible = false;
-            }
+            if (dodgeTimer <= 0) { isDodging = false; isInvincible = false; }
             return;
         }
 
         inputVec.x = Input.GetAxisRaw("Horizontal");
         inputVec.y = Input.GetAxisRaw("Vertical");
 
-        if (inputVec != Vector2.zero)
-        {
-            lastInputVec = inputVec.normalized;
-        }
+        if (inputVec != Vector2.zero) lastInputVec = inputVec.normalized;
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && currentCooldown <= 0)
         {
-            isDodging = true;
-            isInvincible = true;
-            dodgeTimer = dodgeTime;
-            ghostTimer = 0f;
-            currentCooldown = dodgeCooldown;
-
+            isDodging = true; isInvincible = true; dodgeTimer = dodgeTime; ghostTimer = 0f; currentCooldown = dodgeCooldown;
             rigid.linearVelocity = lastInputVec * dodgeSpeed;
         }
 
-        if (Input.GetMouseButton(0) && currentAttackCooldown <= 0 && !isDodging)
+        if (Input.GetMouseButton(0) && currentAttackCooldown <= 0 && !isDodging) Attack();
+
+        if (Input.GetMouseButtonDown(1) && isSkill1Unlocked && currentSkill1Cooldown <= 0 && !isDodging)
         {
-            Attack();
+            currentSkill1Cooldown = skill1Cooldown;
+            Debug.Log("스킬 1 발동!");
+        }
+
+        if (Input.GetKeyDown(KeyCode.E) && isSkill2Unlocked && currentSkill2Cooldown <= 0 && !isDodging)
+        {
+            currentSkill2Cooldown = skill2Cooldown;
+            Debug.Log("스킬 2 발동!");
         }
     }
 
     void FixedUpdate()
     {
-        if (isDodging) return;
-
+        if (!GameManager.instance.isLive || isDodging) return;
         Vector2 nextVec = inputVec.normalized * speed * Time.fixedDeltaTime;
         rigid.MovePosition(rigid.position + nextVec);
     }
 
     void LateUpdate()
     {
-        if (isDodging) return;
+        if (!GameManager.instance.isLive || isDodging) return;
+        if (mousePos.x != rigid.position.x) spriter.flipX = mousePos.x < rigid.position.x;
+    }
 
-        if (mousePos.x != rigid.position.x)
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        if (!GameManager.instance.isLive || isDodging || isInvincible) return;
+
+        if (collision.gameObject.CompareTag("Enemy") && hitDelay <= 0)
         {
-            spriter.flipX = mousePos.x < rigid.position.x;
+            int enemyDamage = 5;
+            ShortEnemy enemy = collision.gameObject.GetComponent<ShortEnemy>();
+            if (enemy != null) enemyDamage = enemy.damage;
+            TakeDamage(enemyDamage);
         }
     }
+
+    public void TakeDamage(int damage)
+    {
+        if (!GameManager.instance.isLive || isDodging || hitDelay > 0) return;
+
+        GameManager.instance.health -= damage;
+
+        if (GameManager.instance.health <= 0)
+        {
+            GameManager.instance.health = 0;
+            UIManager.instance.UpdateHp(0, GameManager.instance.maxHealth);
+            GameManager.instance.GameOver();
+            return;
+        }
+
+        UIManager.instance.UpdateHp(GameManager.instance.health, GameManager.instance.maxHealth);
+        spriter.color = new Color(1, 0.5f, 0.5f);
+        Invoke("ResetColor", 0.1f);
+        hitDelay = 0.5f;
+    }
+
+    void ResetColor() { spriter.color = Color.white; }
 
     void CreateGhost()
     {
         GameObject ghost = new GameObject("Ghost");
         ghost.transform.position = transform.position;
         ghost.transform.localScale = transform.localScale;
-
         SpriteRenderer ghostSprite = ghost.AddComponent<SpriteRenderer>();
         ghostSprite.sprite = spriter.sprite;
         ghostSprite.flipX = spriter.flipX;
-
         ghostSprite.color = new Color(1f, 1f, 1f, 0.5f);
         ghostSprite.sortingOrder = spriter.sortingOrder - 1;
-
         Destroy(ghost, ghostLifetime);
     }
 
     void Attack()
     {
         currentAttackCooldown = attackCooldown;
-
-        if (equippedWeapon != null)
-        {
-            equippedWeapon.Swing();
-        }
-
+        if (equippedWeapon != null) equippedWeapon.Swing();
         if (basicAttackPrefab == null) return;
 
         Vector2 direction = (mousePos - (Vector2)transform.position).normalized;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-
         Quaternion rotation = Quaternion.Euler(0, 0, angle + effectAngleOffset);
         Vector2 spawnPosition = (Vector2)transform.position + direction * attackOffset;
 
         GameObject slash = Instantiate(basicAttackPrefab, spawnPosition, rotation);
 
-        // ★ 해결됨: Transform Scale(-1)로 인한 이펙트 증발 버그를 막기 위해
-        // 렌더러 자체의 Flip 기능을 사용하여 거울처럼 완벽하게 뒤집어줍니다.
         if (mousePos.x < transform.position.x)
         {
             ParticleSystemRenderer[] renderers = slash.GetComponentsInChildren<ParticleSystemRenderer>();
-            if (renderers.Length > 0)
-            {
-                foreach (ParticleSystemRenderer psr in renderers)
-                {
-                    // 파티클의 Y축(세로) 이미지를 100%(1) 뒤집습니다.
-                    psr.flip = new Vector3(psr.flip.x, 1, psr.flip.z);
-
-                    // 만약 칼등으로 때리는 것처럼 앞뒤가 엇나간다면 위 코드를 지우고 
-                    // 아래 코드로 X축을 뒤집게 바꿔주시면 됩니다!
-                    // psr.flip = new Vector3(1, psr.flip.y, psr.flip.z); 
-                }
-            }
-            else
-            {
-                // 혹시 나중에 일반 스프라이트 이펙트를 쓸 경우를 대비한 안전장치
-                SpriteRenderer[] spriters = slash.GetComponentsInChildren<SpriteRenderer>();
-                foreach (SpriteRenderer sr in spriters)
-                {
-                    sr.flipY = true;
-                }
-            }
+            if (renderers.Length > 0) foreach (ParticleSystemRenderer psr in renderers) psr.flip = new Vector3(psr.flip.x, 1, psr.flip.z);
+            else { SpriteRenderer[] spriters = slash.GetComponentsInChildren<SpriteRenderer>(); foreach (SpriteRenderer sr in spriters) sr.flipY = true; }
         }
     }
 }
