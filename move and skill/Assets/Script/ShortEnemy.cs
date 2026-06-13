@@ -13,6 +13,9 @@ public class ShortEnemy : MonoBehaviour
     bool isLive = true;
     bool isKnockback = false;
 
+    // ★ 추가됨: 기절 상태 확인용 변수
+    bool isStunned = false;
+
     Rigidbody2D rigid;
     SpriteRenderer spriter;
     Collider2D coll;
@@ -34,6 +37,7 @@ public class ShortEnemy : MonoBehaviour
         }
         isLive = true;
         isKnockback = false;
+        isStunned = false; // 스폰될 때 기절 해제
         coll.enabled = true;
         rigid.simulated = true;
         spriter.color = Color.white;
@@ -49,7 +53,8 @@ public class ShortEnemy : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!isLive || target == null || isKnockback) return;
+        // ★ 기절(isStunned) 상태일 때도 움직임 정지
+        if (!isLive || target == null || isKnockback || isStunned) return;
 
         Vector2 dirVec = target.position - rigid.position;
         Vector2 nextVec = dirVec.normalized * speed * Time.fixedDeltaTime;
@@ -58,7 +63,7 @@ public class ShortEnemy : MonoBehaviour
 
     void LateUpdate()
     {
-        if (!isLive || target == null) return;
+        if (!isLive || target == null || isStunned) return;
         spriter.flipX = target.position.x < rigid.position.x;
     }
 
@@ -84,7 +89,6 @@ public class ShortEnemy : MonoBehaviour
         isKnockback = true;
         yield return wait;
 
-        // ★ 에러 해결: transform.position 앞에 (Vector2)를 붙여서 2D 좌표로 강제 변환했습니다.
         Vector2 dirVec = (Vector2)transform.position - target.position;
         rigid.linearVelocity = Vector2.zero;
         rigid.AddForce(dirVec.normalized * 5f, ForceMode2D.Impulse);
@@ -93,7 +97,24 @@ public class ShortEnemy : MonoBehaviour
         isKnockback = false;
     }
 
-    void ResetColor() { spriter.color = Color.white; }
+    // ★ 추가됨: 검성 2차 스킬 기절 로직
+    public void ApplyStun(float duration)
+    {
+        if (!isLive) return;
+        StartCoroutine(StunRoutine(duration));
+    }
+
+    IEnumerator StunRoutine(float duration)
+    {
+        isStunned = true;
+        rigid.linearVelocity = Vector2.zero;
+        spriter.color = Color.cyan; // 기절 시 찌릿찌릿한 파란색
+        yield return new WaitForSeconds(duration);
+        spriter.color = Color.white;
+        isStunned = false;
+    }
+
+    void ResetColor() { if (!isStunned) spriter.color = Color.white; }
 
     void Die()
     {
@@ -104,9 +125,10 @@ public class ShortEnemy : MonoBehaviour
         spriter.color = Color.gray;
         transform.localScale = new Vector3(transform.localScale.x, 0.3f, 1f);
 
-        // ★ 추가됨: 죽을 때 PoolManager의 2번 프리팹(보석)을 꺼내 내 위치에 떨어뜨림
         GameObject gem = GameManager.instance.pool.Get(2);
         gem.transform.position = transform.position;
+
+        GameManager.instance.TryDropItem(transform.position); // ★ 추가: 포션/자석 드롭 시도
 
         StartCoroutine(DieRoutine());
     }

@@ -15,14 +15,11 @@ public class MeleeAttack : MonoBehaviour
     {
         if (collision.CompareTag("Enemy"))
         {
-            // ★ 기획서 맞춤: 기본 데미지에 플레이어의 보너스 데미지를 합산해서 타격합니다!
-            int totalDamage = damage + GameManager.instance.player.bonusDamage;
-
-            ShortEnemy shortEnemy = collision.GetComponent<ShortEnemy>();
-            if (shortEnemy != null) shortEnemy.TakeDamage(totalDamage);
-
-            LongEnemy longEnemy = collision.GetComponent<LongEnemy>();
-            if (longEnemy != null) longEnemy.TakeDamage(totalDamage);
+            // 기존에 있던 잡몹 타격 코드
+            ShortEnemy se = collision.GetComponent<ShortEnemy>();
+            LongEnemy le = collision.GetComponent<LongEnemy>();
+            if (se != null) se.TakeDamage(damage);
+            if (le != null) le.TakeDamage(damage);
         }
     }
 }

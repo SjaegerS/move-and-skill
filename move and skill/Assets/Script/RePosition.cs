@@ -5,7 +5,6 @@ public class RePosition : MonoBehaviour
     Collider2D coli;
 
     [Header("맵 이동 설정")]
-    // ★ 추가됨: 유니티 인스펙터 창에서 이 수치를 조절하여 맵 구멍을 없앱니다!
     public float mapSize = 40f;
 
     void Awake()
@@ -25,9 +24,9 @@ public class RePosition : MonoBehaviour
         float diffX = Mathf.Abs(playerPos.x - myPos.x);
         float diffY = Mathf.Abs(playerPos.y - myPos.y);
 
-        Vector3 playerDir = GameManager.instance.player.inputVec;
-        float dirX = playerDir.x < 0 ? -1 : 1;
-        float dirY = playerDir.y < 0 ? -1 : 1;
+        // ★ 버그 수정됨: inputVec(키보드)에 의존하지 않고, 실제 타일과 플레이어의 위치를 직접 비교!
+        float dirX = playerPos.x > myPos.x ? 1 : -1;
+        float dirY = playerPos.y > myPos.y ? 1 : -1;
 
         switch (transform.tag)
         {
@@ -42,7 +41,6 @@ public class RePosition : MonoBehaviour
                 }
                 else
                 {
-                    // 대각선 이동 시 맵 구멍 뚫리는 버그 방지 (이전 수정본 반영)
                     transform.Translate(new Vector3(dirX * mapSize, dirY * mapSize, 0));
                 }
                 break;

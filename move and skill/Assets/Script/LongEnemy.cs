@@ -21,6 +21,9 @@ public class LongEnemy : MonoBehaviour
     bool isLive = true;
     bool isKnockback = false;
 
+    // ★ 추가됨: 기절 상태 확인용 변수
+    bool isStunned = false;
+
     Rigidbody2D rigid;
     SpriteRenderer spriter;
     Collider2D coll;
@@ -42,6 +45,7 @@ public class LongEnemy : MonoBehaviour
         }
         isLive = true;
         isKnockback = false;
+        isStunned = false; // 기절 초기화
         coll.enabled = true;
         rigid.simulated = true;
         spriter.color = Color.white;
@@ -58,7 +62,8 @@ public class LongEnemy : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!isLive || target == null || isKnockback) return;
+        // ★ 기절(isStunned) 상태일 때도 움직임 및 공격 타이머 정지
+        if (!isLive || target == null || isKnockback || isStunned) return;
 
         Vector2 dirVec = target.position - rigid.position;
         float distance = dirVec.magnitude;
@@ -87,7 +92,7 @@ public class LongEnemy : MonoBehaviour
 
     void LateUpdate()
     {
-        if (!isLive || target == null) return;
+        if (!isLive || target == null || isStunned) return;
         spriter.flipX = target.position.x < rigid.position.x;
     }
 
@@ -124,7 +129,6 @@ public class LongEnemy : MonoBehaviour
         isKnockback = true;
         yield return wait;
 
-        // ★ 에러 해결: (Vector2) 형변환 추가
         Vector2 dirVec = (Vector2)transform.position - target.position;
         rigid.linearVelocity = Vector2.zero;
         rigid.AddForce(dirVec.normalized * 5f, ForceMode2D.Impulse);
@@ -133,7 +137,24 @@ public class LongEnemy : MonoBehaviour
         isKnockback = false;
     }
 
-    void ResetColor() { spriter.color = Color.white; }
+    // ★ 추가됨: 검성 2차 스킬 기절 로직
+    public void ApplyStun(float duration)
+    {
+        if (!isLive) return;
+        StartCoroutine(StunRoutine(duration));
+    }
+
+    IEnumerator StunRoutine(float duration)
+    {
+        isStunned = true;
+        rigid.linearVelocity = Vector2.zero;
+        spriter.color = Color.cyan;
+        yield return new WaitForSeconds(duration);
+        spriter.color = Color.white;
+        isStunned = false;
+    }
+
+    void ResetColor() { if (!isStunned) spriter.color = Color.white; }
 
     void Die()
     {
@@ -143,9 +164,10 @@ public class LongEnemy : MonoBehaviour
         spriter.color = Color.gray;
         transform.localScale = new Vector3(transform.localScale.x, 0.3f, 1f);
 
-        // ★ 추가됨: 보석 드랍
         GameObject gem = GameManager.instance.pool.Get(2);
         gem.transform.position = transform.position;
+
+        GameManager.instance.TryDropItem(transform.position); // ★ 추가: 포션/자석 드롭 시도
 
         StartCoroutine(DieRoutine());
     }
