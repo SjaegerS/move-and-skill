@@ -24,14 +24,14 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: FuzzAdd_Default
-  m_Shader: {fileID: -6465566751694194690, guid: 7f11fe28133f1a74594785107b98f2fe,
-    type: 3}
+  m_Shader: {fileID: 4800000, guid: 0406db5a14f94604a8c57ccfbc9f3b46, type: 3}
   m_Parent: {fileID: 2100000, guid: 661da4e08f699014dadcffd348c96a62, type: 2}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - _DOUBLESIDED_ON
+  - _FLIPBOOKBLENDING_OFF
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -41,9 +41,10 @@ Material:
     RenderType: Transparent
   disabledShaderPasses:
   - TransparentBackface
-  - MOTIONVECTORS
+  - SHADOWCASTER
   - TransparentDepthPrepass
   - TransparentDepthPostpass
+  - DepthOnly
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -52,6 +53,7 @@ Material:
     m_Floats: []
     m_Colors: []
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!114 &2140585145615368061
 MonoBehaviour:
   m_ObjectHideFlags: 11
@@ -64,7 +66,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 7
+  version: 10
 --- !u!114 &3870756778908533043
 MonoBehaviour:
   m_ObjectHideFlags: 11
