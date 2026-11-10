@@ -24,7 +24,11 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: FuzzAdd_Default
+<<<<<<< Updated upstream
   m_Shader: {fileID: 4800000, guid: 0406db5a14f94604a8c57ccfbc9f3b46, type: 3}
+=======
+  m_Shader: {fileID: -6465566751694194690, guid: 7f11fe28133f1a74594785107b98f2fe, type: 3}
+>>>>>>> Stashed changes
   m_Parent: {fileID: 2100000, guid: 661da4e08f699014dadcffd348c96a62, type: 2}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
@@ -45,12 +49,19 @@ Material:
   - TransparentDepthPrepass
   - TransparentDepthPostpass
   - DepthOnly
+<<<<<<< Updated upstream
+=======
+  - SHADOWCASTER
+>>>>>>> Stashed changes
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs: []
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _DstBlendAlpha: 1
+    - _QueueControl: 1
+    - _SrcBlend: 5
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1
