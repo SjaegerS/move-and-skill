@@ -34,11 +34,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: ImpactLightrays_Blurry
-<<<<<<< Updated upstream
-  m_Shader: {fileID: 4800000, guid: 0406db5a14f94604a8c57ccfbc9f3b46, type: 3}
-=======
   m_Shader: {fileID: -6465566751694194690, guid: 7f11fe28133f1a74594785107b98f2fe, type: 3}
->>>>>>> Stashed changes
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
@@ -58,6 +54,7 @@ Material:
   - TransparentDepthPrepass
   - TransparentDepthPostpass
   - DepthOnly
+  - MOTIONVECTORS
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -169,7 +166,7 @@ Material:
     - _Mode: 0
     - _MultiplyNoiseDesaturation: 1
     - _OpaqueCullMode: 2
-    - _QueueControl: -1
+    - _QueueControl: 1
     - _QueueOffset: 0
     - _ReceivesSSR: 0
     - _ReceivesSSRTransparent: 0
